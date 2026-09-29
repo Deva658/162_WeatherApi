@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praktikum 2</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .identitas {
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        h3 { margin: 5px 0; color: #333; }
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0275d8;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover { background-color: #025aa5; }
+        .hasil {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .hasil p { margin: 8px 0; font-size: 15px; color: #444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="identitas">
+            <h3>Nama : Deva Aditya Sauputra</h3>
+            <h3>NIM : 20240140162</h3>
+        </div>
+
+        <h3>Cari Data Cuaca / Lokasi</h3>
+        <div class="form-group">
+            <input type="text" id="inputLokasi" placeholder="Masukkan nama lokasi (misal: Yogyakarta)">
+            <button onclick="cariData()">Cari</button>
+        </div>
+
+        <div class="hasil" id="boxHasil">
+            <p><strong>Lokasi:</strong> <span id="resLokasi">-</span></p>
+            <p><strong>Kecamatan/Kota:</strong> <span id="resKecamatan">-</span></p>
+            <p><strong>Provinsi:</strong> <span id="resProvinsi">-</span></p>
+            <p><strong>Negara:</strong> <span id="resNegara">-</span></p>
+            <p><strong>Longitude:</strong> <span id="resLon">-</span></p>
+            <p><strong>Latitude:</strong> <span id="resLat">-</span></p>
+        </div>
+    </div>
+
+    <script>
+        function cariData() {
+            const lokasi = document.getElementById('inputLokasi').value;
+            if (!lokasi) {
+                alert("Isi nama lokasi terlebih dahulu!");
+                return;
+            }
+
+            const apiKey = 'ceQJ7gft2CwcZK0f4Oq8'; 
+            const url = `https://api.maptiler.com/geocoding/${encodeURIComponent(lokasi)}.json?key=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.features && data.features.length > 0) {
+                        const hasil = data.features[0];
+
+                        document.getElementById('boxHasil').style.display = 'block';
+                        
+                        document.getElementById('resLokasi').innerText = lokasi;
+                        document.getElementById('resLon').innerText = hasil.center[0];
+                        document.getElementById('resLat').innerText = hasil.center[1];
+
+                        let negara = "-";
+                        let provinsi = "-";
+                        let kecamatan = hasil.text || "-";
+
+                        if (hasil.context) {
+                            hasil.context.forEach(ctx => {
+                                if (ctx.id.includes('country')) negara = ctx.text;
+                                if (ctx.id.includes('region') || ctx.id.includes('province')) provinsi = ctx.text;
+                            });
+                        }
+
+                        document.getElementById('resKecamatan').innerText = kecamatan;
+                        document.getElementById('resProvinsi').innerText = provinsi;
+                        document.getElementById('resNegara').innerText = negara;
+                    } else {
+                        alert("Data lokasi tidak ditemukan.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Terjadi kesalahan:", error);
+                    alert("Gagal mengambil data dari API.");
+                });
+        }
+    </script>
+</body>
+</html>
