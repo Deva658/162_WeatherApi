@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/Deva658/162_WeatherApi/issues"
   },
-  "homepage": "https://github.com/Deva658/162_WeatherApi#readme"
+  "homepage": "https://github.com/Deva658/162_WeatherApi#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }
